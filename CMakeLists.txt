@@ -144,42 +144,13 @@ string(CONCAT OPEN3D_VERSION
 project(Open3D VERSION ${OPEN3D_VERSION} LANGUAGES C CXX)
 message(STATUS "Open3D ${PROJECT_VERSION}")
 
-# Detect process or architecture.
-# Ref: https://stackoverflow.com/a/12024211/1255535
-# Only supporting ARMV8+ 64-bit for now.
-set(detect_arch_code "
-#if defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || \
-        defined(_M_X64)
-#define PROCESSOR_ARCH \"x86_64\"
-#elif defined(__ARMv8_A__) || defined(__ARM64_ARCH_8__) || \
-        defined(__aarch64__) || defined(__ARMv8__) || defined(_M_ARM64)
-#define PROCESSOR_ARCH \"armv8\"
-#else
-#define PROCESSOR_ARCH \"unknown\"
-#endif
-
-#include <iostream>
-int main() {
-    std::cout << PROCESSOR_ARCH;
-    return 0;
-}
-")
-file(WRITE "${CMAKE_BINARY_DIR}/detect_arch.cpp" "${detect_arch_code}")
-try_run(
-    dummy_run_result                       # <runResultVar>
-    dummy_compile_result                   # <compileResultVar>
-    "${CMAKE_BINARY_DIR}/bin"              # <bindir>
-    "${CMAKE_BINARY_DIR}/detect_arch.cpp"  # <srcfile>
-    RUN_OUTPUT_VARIABLE PROCESSOR_ARCH
+execute_process(COMMAND uname -p
+    OUTPUT_VARIABLE PROCESSOR_ARCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-if("${PROCESSOR_ARCH}" STREQUAL "unknown")
-    message(FATAL_ERROR "Unsupported processor architecture.")
-else()
-    message(STATUS "Detected processor architecture: ${PROCESSOR_ARCH}.")
-endif()
 
 # Set BLAS/LAPACK library preference.
-if("${PROCESSOR_ARCH}" STREQUAL "armv8")
+if("${PROCESSOR_ARCH}" STREQUAL "aarch64")
     if(NOT USE_BLAS)
         set(USE_BLAS ON)
         message(WARNING "ARM CPU detected, setting USE_BLAS=ON.")

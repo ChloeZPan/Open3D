@@ -4,12 +4,10 @@ set(OPENBLAS_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/openblas)
 
 if("${PROCESSOR_ARCH}" STREQUAL "x86_64")
     set(OPENBLAS_TARGET "NEHALEM")
-elseif("${PROCESSOR_ARCH}" STREQUAL "armv8")
+elseif("${PROCESSOR_ARCH}" STREQUAL "aarch64")
     set(OPENBLAS_TARGET "ARMV8")
-elseif(${PROCESSOR_ARCH} STREQUAL "armv7")
-    set(OPENBLAS_TARGET "ARMV7")
 else()
-    message(FATAL_ERROR "Unable to select OPENBLAS_TARGET.")
+    message(FATAL_ERROR "Only x86_64 or aarch64 is supported.")
 endif()
 
 set(OPENBLAS_INCLUDE_DIR "${OPENBLAS_INSTALL_PREFIX}/include/") # The "/"" is critical, see import_3rdparty_library.
